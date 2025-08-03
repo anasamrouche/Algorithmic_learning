@@ -3,18 +3,17 @@ use crate::miscellaneous::is_power_of_2;
 use std::ops::{AddAssign, Mul, Sub};
 use num_traits::Zero;
 
-pub fn strassen<T: Zero + Clone + AddAssign + Sub<Output=T> + Mul<Output = T>>(A: &Matrix<T>, B:&Matrix<T>) -> Matrix<T> {
+pub fn strassen<T: Zero + Copy + AddAssign + Sub<Output=T> + Mul<Output = T>>(A: &Matrix<T>, B:&Matrix<T>) -> Matrix<T> {
         let a: usize = A.core.len();
         let b: usize = B.core[0].len();
         let a_rows: usize = A.core[0].len();
         let b_columns: usize = B.core.len();
         assert!(a == b && b == a_rows && a_rows == b_columns && is_power_of_2(a));
 
-        let mut C:Vec<Vec<T>> = vec![vec![(&T::zero()).clone(); a]; a];
+        let mut C:Vec<Vec<T>> = vec![vec![T::zero(); a]; a];
         if a == 1 {
-            C[0][0] = A.core[0][0].clone() * B.core[0][0].clone();
-            let return_matrix = Matrix{core:C};
-            return return_matrix;
+            C[0][0] = A.core[0][0] * B.core[0][0];
+            return Matrix{core:C};
         }
         else {
             let A11 = A.get_block(0..a/2, 0..a/2);
@@ -53,15 +52,13 @@ pub fn strassen<T: Zero + Clone + AddAssign + Sub<Output=T> + Mul<Output = T>>(A
 
             for i in 0..a/2 {
                 for j in 0..a/2 {
-                    C[i][j] = C11.core[i][j].clone();
-                    C[i][j+a/2] = C12.core[i][j].clone();
-                    C[i+a/2][j] = C21.core[i][j].clone();
-                    C[i+a/2][j+a/2] = C22.core[i][j].clone();
+                    C[i][j] = C11.core[i][j];
+                    C[i][j+a/2] = C12.core[i][j];
+                    C[i+a/2][j] = C21.core[i][j];
+                    C[i+a/2][j+a/2] = C22.core[i][j];
                 }
             }
 
-            let return_matrix = Matrix{core:C};
-
-            return_matrix
+            return Matrix{core:C};
         }
     }

@@ -1,12 +1,35 @@
 use num_traits::identities::Zero;
 use std::ops::{AddAssign, Mul, Sub, Range};
+use std::cmp::PartialEq;
 
-#[derive(Debug)]
 pub struct Matrix<T> {
     pub core: Vec<Vec<T>>,
 }
 
-impl<T: Zero + Clone + AddAssign + Sub<Output = T> + Mul<Output = T>> Matrix<T> {
+impl<T: PartialEq> PartialEq for Matrix<T> {
+    fn eq(&self, other:&Self) -> bool {
+        let result: bool = true;
+        let a = self.core.len();
+        let b = self.core[0].len();
+        let c = other.core.len();
+        let d = other.core[0].len();
+
+        if a != c || b != d {
+            return false;
+        }
+
+        for i in 0..a {
+            for j in 0..b {
+                if self.core[i][j] != other.core[i][j] {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+impl<T: Zero + Copy + AddAssign + Sub<Output = T> + Mul<Output = T>> Matrix<T> {
     pub fn plus(&self, B:&Matrix<T>) -> Matrix<T> {
         let a:usize = self.core.len();
         let b:usize = self.core[0].len();
@@ -15,10 +38,10 @@ impl<T: Zero + Clone + AddAssign + Sub<Output = T> + Mul<Output = T>> Matrix<T> 
 
         assert!(a == c && b == d);
         
-        let mut C:Vec<Vec<T>> = vec![vec![T::zero().clone(); b]; a];
+        let mut C:Vec<Vec<T>> = vec![vec![T::zero(); b]; a];
         for i in 0..a {
             for j in 0..b {
-                C[i][j] = self.core[i][j].clone() + B.core[i][j].clone();
+                C[i][j] = self.core[i][j] + B.core[i][j];
             }
         }
         let return_matrix:Matrix<T> = Matrix{core:C};
@@ -33,10 +56,10 @@ impl<T: Zero + Clone + AddAssign + Sub<Output = T> + Mul<Output = T>> Matrix<T> 
 
         assert!(a == c && b == d);
         
-        let mut C:Vec<Vec<T>> = vec![vec![T::zero().clone(); b]; a];
+        let mut C:Vec<Vec<T>> = vec![vec![T::zero(); b]; a];
         for i in 0..a {
             for j in 0..b {
-                C[i][j] = self.core[i][j].clone() - B.core[i][j].clone();
+                C[i][j] = self.core[i][j] - B.core[i][j];
             }
         }
         let return_matrix:Matrix<T> = Matrix{core:C};
@@ -47,7 +70,7 @@ impl<T: Zero + Clone + AddAssign + Sub<Output = T> + Mul<Output = T>> Matrix<T> 
     {
         let C = self.core[row_range]
             .iter()
-            .map(|row| row[col_range.clone()].to_vec())
+            .map(move |row| row[col_range.clone()].to_vec())
             .collect();
         Matrix{core:C}
     }
