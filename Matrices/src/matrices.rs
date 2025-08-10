@@ -74,4 +74,13 @@ impl<T: Zero + Copy + AddAssign + Sub<Output = T> + Mul<Output = T>> Matrix<T> {
             .collect();
         Matrix{core:C}
     }
+
+    pub fn insert_from(&mut self, B: Matrix<T>, col_start:usize, row_start: usize) {
+        assert!(B.core.len() <= self.core.len() - col_start  && B.core[0].len() <= self.core[0].len() - row_start);
+        for i in 0..B.core.len() {
+            for j in 0..B.core[0].len() {
+                self.core[col_start + i][row_start + j] = B.core[i][j];
+            }
+        }
+    }
 }

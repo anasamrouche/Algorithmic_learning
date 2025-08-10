@@ -12,7 +12,7 @@ use std::{time::Instant, vec};
 use rand::random_range;
 
 fn main() {
-    const SIZE:usize = 32;
+    const SIZE:usize = 128;
     
     let mut rowA = vec![0; SIZE];
     let mut rowB = vec![0; SIZE];
@@ -27,8 +27,8 @@ fn main() {
 
     for _ in 0..SIZE-1 {
         for i in 0..SIZE {
-            rowA[i] = random_range(-1e3..1e3) as i32;
-            rowB[i] = random_range(-1e3..1e3) as i32;
+            rowA[i] = random_range(-10..10) as i32;
+            rowB[i] = random_range(-10..10) as i32;
         }
 
         D.core.push(rowA.clone());
@@ -37,14 +37,14 @@ fn main() {
 
     assert!(D.core.len() == D.core[0].len() && E.core.len() == E.core[0].len(), "{}, {}; {}, {}", D.core.len(), D.core[0].len(), E.core.len(), E.core[0].len());
 
-    let mut now = Instant::now();
-    let F1 = strassen(&D, &E);
-    let mut elapsed = now.elapsed();
-    println!("{:?} elapsed for strassen algorithm.", elapsed);
-    now = Instant::now();
+    let now = Instant::now();
     let F2 = multiply_naive(&D,&E);
-    elapsed = now.elapsed();
-    println!("{:?} elapsed for the naive algorithm.", elapsed)
+    let elapsed = now.elapsed();
+    println!("{:?} elapsed for the naive algorithm.", elapsed);
+    let now = Instant::now();
+    let F1 = strassen(&D, &E);
+    let elapsed = now.elapsed();
+    println!("{:?} elapsed for strassen algorithm.", elapsed);
 }
 
 #[cfg(test)]
