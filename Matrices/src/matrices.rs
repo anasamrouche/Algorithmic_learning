@@ -2,6 +2,7 @@ use num_traits::identities::Zero;
 use std::ops::{AddAssign, Mul, Sub, Range};
 use std::cmp::PartialEq;
 
+#[derive(Clone)]
 pub struct Matrix<T> {
     pub core: Vec<Vec<T>>,
 }

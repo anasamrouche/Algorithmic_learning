@@ -9,72 +9,59 @@ use matrices::Matrix;
 use naive::multiply_naive;
 use strassen::strassen;
 use std::{time::Instant, vec};
-use rand::random_range;
+use rand::{random_range, random_iter, rngs::SmallRng, distr::Distribution};
+use num_traits::pow;
+use std::rc::Rc;
 
+fn benchmark() {
+    const SIZES: [usize; 7] = [16, 32, 64, 128, 256, 512, 1024];
+    let mut times_naive: [u128; 7] = [0; 7];
+
+    for (i, size) in SIZES.iter().enumerate() {
+        let D = miscellaneous::random_matrix(*size, -128, 127);
+        let E = miscellaneous::random_matrix(*size, -128, 127);
+
+        let now = Instant::now();
+        let naive = multiply_naive(&D, &E);
+        let elapsed = now.elapsed();
+        times_naive[i] = elapsed.as_millis();
+    }
+    println!("Résultats naïfs : {:#?}", times_naive);
+}
 fn main() {
-    const SIZE:usize = 128;
-    
-    let mut rowA = vec![0; SIZE];
-    let mut rowB = vec![0; SIZE];
-
-    for i in 0..SIZE {
-        rowA[i] = random_range(-1e3..1e3) as i32;
-        rowB[i] = random_range(-1e3..1e3) as i32;
-    }
-
-    let mut D:Matrix<i32> = Matrix{core:vec![rowA.clone()]};
-    let mut E:Matrix<i32> = Matrix{core:vec![rowB.clone()]};
-
-    for _ in 0..SIZE-1 {
-        for i in 0..SIZE {
-            rowA[i] = random_range(-10..10) as i32;
-            rowB[i] = random_range(-10..10) as i32;
-        }
-
-        D.core.push(rowA.clone());
-        E.core.push(rowB.clone());
-    }
-
-    assert!(D.core.len() == D.core[0].len() && E.core.len() == E.core[0].len(), "{}, {}; {}, {}", D.core.len(), D.core[0].len(), E.core.len(), E.core[0].len());
-
-    let now = Instant::now();
-    let F2 = multiply_naive(&D,&E);
-    let elapsed = now.elapsed();
-    println!("{:?} elapsed for the naive algorithm.", elapsed);
-    let now = Instant::now();
-    let F1 = strassen(&D, &E);
-    let elapsed = now.elapsed();
-    println!("{:?} elapsed for strassen algorithm.", elapsed);
+    benchmark();
 }
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]
     fn are_equal() {
-        const SIZE:usize = 32;
+        const SIZE:usize = 128;
     
-    let mut rowA = vec![0; SIZE];
-    let mut rowB = vec![0; SIZE];
+        let mut rowA = vec![0; SIZE];
+        let mut rowB = vec![0; SIZE];
 
-    for i in 0..SIZE {
-        rowA[i] = random_range(-1e3..1e3) as i32;
-        rowB[i] = random_range(-1e3..1e3) as i32;
-    }
-
-    let mut D:Matrix<i32> = Matrix{core:vec![rowA.clone()]};
-    let mut E:Matrix<i32> = Matrix{core:vec![rowB.clone()]};
-
-    for _ in 0..SIZE-1 {
         for i in 0..SIZE {
             rowA[i] = random_range(-1e3..1e3) as i32;
             rowB[i] = random_range(-1e3..1e3) as i32;
         }
 
-        D.core.push(rowA.clone());
-        E.core.push(rowB.clone());
+        let mut D:Matrix<i32> = Matrix{core:vec![rowA.clone()]};
+        let mut E:Matrix<i32> = Matrix{core:vec![rowB.clone()]};
+
+        for _ in 0..SIZE-1 {
+            for i in 0..SIZE {
+                rowA[i] = random_range(-1e3..1e3) as i32;
+                rowB[i] = random_range(-1e3..1e3) as i32;
+            }
+
+            D.core.push(rowA.clone());
+            E.core.push(rowB.clone());
+        }
+        assert!(strassen(&D, &E) == multiply_naive(&D, &E));
     }
-    assert!(strassen(&D, &E) == multiply_naive(&D, &E));
-    }
+
 }
