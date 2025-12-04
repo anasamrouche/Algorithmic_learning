@@ -5,17 +5,7 @@ use std::cell::RefCell;
 use crate::matrices::Matrix;
 
 pub fn is_power_of_2(n:usize) -> bool {
-    let mut m:f32 = n as f32;
-    while m != 1 as f32 {
-        if (m as usize)%2 == 1 {
-            return false
-        }
-        m /= 2 as f32;
-        if m != m.round() {
-            return false
-        }
-    }
-    true
+    return (n&(n-1)!=0);
 }
 
 pub fn random_matrix(size: usize, low:i32, high:i32) -> Matrix<i32> {

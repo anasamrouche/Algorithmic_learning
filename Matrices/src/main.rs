@@ -1,9 +1,9 @@
 #![allow(warnings)]
 
 mod matrices;
-mod miscellaneous;
 mod naive;
 mod strassen;
+mod miscellaneous;
 
 use matrices::Matrix;
 use naive::multiply_naive;
@@ -16,17 +16,22 @@ use std::rc::Rc;
 fn benchmark() {
     const SIZES: [usize; 7] = [16, 32, 64, 128, 256, 512, 1024];
     let mut times_naive: [u128; 7] = [0; 7];
+    let mut times_strassen: [u128; 7] = [0; 7];
 
     for (i, size) in SIZES.iter().enumerate() {
         let D = miscellaneous::random_matrix(*size, -128, 127);
         let E = miscellaneous::random_matrix(*size, -128, 127);
 
         let now = Instant::now();
-        let naive = multiply_naive(&D, &E);
+        multiply_naive(&D, &E);
         let elapsed = now.elapsed();
         times_naive[i] = elapsed.as_millis();
+
+        strassen(&D, &E);
+        let elapsed = now.elapsed() - elapsed;
+        times_strassen[i] = elapsed.as_millis();
     }
-    println!("Résultats naïfs : {:#?}", times_naive);
+    println!("Résultats naïfs : {:#?}, résultats Strassen : {:#?}", times_naive, times_strassen);
 }
 fn main() {
     benchmark();
